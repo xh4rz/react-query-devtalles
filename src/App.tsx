@@ -1,37 +1,32 @@
-import { useEffect, useState } from 'react';
 import './App.css';
+import { useQuery } from '@tanstack/react-query';
 
-// https://www.random.org/integers/?num=1&min=1&max=500&col=1&base=10&format=plain&rnd=new
+const getCryptoNumber = async (): Promise<number> => {
+	const resp = await fetch(
+		'https://www.random.org/integers/?num=1&min=1&max=500&col=1&base=10&format=plain&rnd=new'
+	).then((resp) => resp.json());
+
+	return Number(resp);
+};
 
 function App() {
-	const [number, setNumber] = useState(0);
-	const [isloading, setIsloading] = useState(true);
-	const [error, setError] = useState();
-
-	const [refreshtoken, setRefreshtoken] = useState(0);
-
-	useEffect(() => {
-		setIsloading(true);
-
-		fetch(
-			'https://www.random.org/integers/?num=1&min=1&max=500&col=1&base=10&format=plain&rnd=new'
-		)
-			.then((resp) => resp.json())
-			.then((data) => setNumber(data))
-			.catch((error) => setError(error))
-			.finally(() => setIsloading(false));
-	}, [refreshtoken]);
+	const {
+		isFetching,
+		data: number,
+		error,
+		refetch
+	} = useQuery({
+		queryKey: ['randomNumber'],
+		queryFn: getCryptoNumber
+	});
 
 	return (
 		<>
-			{isloading ? <h1>Cargando...</h1> : <h1>Numero: {number}</h1>}
+			{isFetching ? <h1>Cargando...</h1> : <h1>Numero: {number}</h1>}
 
-			<div>{error}</div>
+			<div>{JSON.stringify(error)}</div>
 
-			<button
-				disabled={isloading}
-				onClick={() => setRefreshtoken(refreshtoken + 1)}
-			>
+			<button disabled={isFetching} onClick={() => refetch()}>
 				Nuevo número
 			</button>
 		</>
