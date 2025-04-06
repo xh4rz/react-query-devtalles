@@ -1,5 +1,6 @@
 import './App.css';
 import { useQuery } from '@tanstack/react-query';
+import { RandomNumber } from './components/RandomNumber';
 
 const getCryptoNumber = async (): Promise<number> => {
 	const resp = await fetch(
@@ -17,12 +18,15 @@ function App() {
 		refetch
 	} = useQuery({
 		queryKey: ['randomNumber'],
-		queryFn: getCryptoNumber
+		queryFn: getCryptoNumber,
+		staleTime: 1000 * 60
 	});
 
 	return (
 		<>
 			{isFetching ? <h1>Cargando...</h1> : <h1>Numero: {number}</h1>}
+
+			<RandomNumber />
 
 			<div>{JSON.stringify(error)}</div>
 
